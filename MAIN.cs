@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using Comora;
 using Demo.Source.Game;
 using Demo.Source.Game.Input;
+using Demo.Source.Game.Player;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -19,7 +20,7 @@ public class MAIN : Game
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
 
-    private Character _player;
+    private Player _player;
     private PlayerInput _playerInput;
     private Camera _camera;
     private Desktop _desktop;
@@ -45,7 +46,7 @@ public class MAIN : Game
     protected override void Initialize()
     {
         // TODO: Add your initialization logic here
-        _player = new Character(Vector2.One * 100);
+        _player = new Player(Vector2.One * 100);
         _playerInput = new PlayerInput();
         _camera = new Camera(_graphics.GraphicsDevice);
         base.Initialize();

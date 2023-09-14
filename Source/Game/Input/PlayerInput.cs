@@ -15,7 +15,17 @@ public class PlayerInput
         {
             float length = (float)Math.Sqrt(_rawInput.X * _rawInput.X + _rawInput.Y * _rawInput.Y);
 
-            Vector2 normalized = new Vector2(_rawInput.X / length, _rawInput.Y / length);
+            Vector2 normalized = _rawInput;
+
+            if (normalized.X != 0)
+            {
+                normalized.X /= length;
+            }
+            
+            if (normalized.Y!= 0)
+            {
+                normalized.Y /= length;
+            }
             
             return normalized;
         }
@@ -23,10 +33,14 @@ public class PlayerInput
 
     public void Update()
     {
+        Vector2 input = Vector2.Zero;
+
         //Get input from "W", "A", "S" and "D" keys and write into _rawInput variable
-        _rawInput.Y += Keyboard.GetState().IsKeyDown(Keys.W) ? 1f : 0f;
-        _rawInput.Y += Keyboard.GetState().IsKeyDown(Keys.S) ? -1f : 0f;
-        _rawInput.X += Keyboard.GetState().IsKeyDown(Keys.A)? -1f : 0f;
-        _rawInput.X += Keyboard.GetState().IsKeyDown(Keys.D)? 1f : 0f;
+        input.Y += Keyboard.GetState().IsKeyDown(Keys.W) ? -1f : 0f;
+        input.Y += Keyboard.GetState().IsKeyDown(Keys.S) ? 1f : 0f;
+        input.X += Keyboard.GetState().IsKeyDown(Keys.A)? -1f : 0f;
+        input.X += Keyboard.GetState().IsKeyDown(Keys.D)? 1f : 0f;
+        
+        _rawInput = input;
     }
 }
