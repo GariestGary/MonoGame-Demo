@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace Demo.Source.Core.Transforms;
+namespace Demo.Source.Core;
 
 public class Transform
 {
@@ -12,7 +12,6 @@ public class Transform
     {
         get => _position;
         set => _position = value;
-        
     }
 
     public Vector2 Scale

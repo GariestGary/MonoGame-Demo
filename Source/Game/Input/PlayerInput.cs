@@ -9,27 +9,6 @@ public class PlayerInput
     private Vector2 _rawInput = Vector2.Zero;
     
     public Vector2 RawInput => _rawInput;
-    public Vector2 NormalizedInput
-    {
-        get
-        {
-            float length = (float)Math.Sqrt(_rawInput.X * _rawInput.X + _rawInput.Y * _rawInput.Y);
-
-            Vector2 normalized = _rawInput;
-
-            if (normalized.X != 0)
-            {
-                normalized.X /= length;
-            }
-            
-            if (normalized.Y!= 0)
-            {
-                normalized.Y /= length;
-            }
-            
-            return normalized;
-        }
-    }
 
     public void Update()
     {

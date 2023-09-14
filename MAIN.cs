@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Windows.Forms;
 using Comora;
+using Demo.Source.Core;
 using Demo.Source.Game;
 using Demo.Source.Game.Input;
 using Demo.Source.Game.Player;
@@ -22,7 +23,7 @@ public class MAIN : Game
 
     private Player _player;
     private PlayerInput _playerInput;
-    private Camera _camera;
+    private SmoothCamera _camera;
     private Desktop _desktop;
     private Slider _fpsSlider;
     private float _lastFPSValue;
@@ -48,7 +49,7 @@ public class MAIN : Game
         // TODO: Add your initialization logic here
         _player = new Player(Vector2.One * 100);
         _playerInput = new PlayerInput();
-        _camera = new Camera(_graphics.GraphicsDevice);
+        _camera = new SmoothCamera(_graphics.GraphicsDevice, _player.T, 0.3f);
         base.Initialize();
     }
 
@@ -98,19 +99,10 @@ public class MAIN : Game
             Exit();
         
         _playerInput.Update();
-        
-        var newPos = _player.T.Position;
-        
-        newPos.X += _playerInput.NormalizedInput.X * Delta * 250f;
-        newPos.Y += _playerInput.NormalizedInput.Y * Delta * 250f;
-        
-        _player.T.Position = newPos;
-        
-        _player.UpdatePosition();
-        _camera.Position = new Vector2(_player.Rect.X, _player.Rect.Y);
+        _player.ProvideInput(_playerInput.RawInput);
+        _player.UpdatePosition(Delta);
+        _camera.UpdateSmoothedPosition(Delta);
         _camera.Update(gameTime);
-
-        // TODO: Add your update logic here
 
         base.Update(gameTime);
     }
