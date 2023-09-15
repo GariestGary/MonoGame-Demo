@@ -1,9 +1,8 @@
-﻿using System;
-using Comora;
-using Demo.Source.Utils;
-using Microsoft.Xna.Framework.Graphics;
+﻿namespace Demo.Source.Core;
 
-namespace Demo.Source.Core;
+using Microsoft.Xna.Framework.Graphics;
+using Comora;
+using Utils;
 
 public class SmoothCamera: Camera
 {

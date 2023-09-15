@@ -1,16 +1,15 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using System.Windows.Forms;
 using Comora;
 using Demo.Source.Core;
+using Demo.Source.Core.World;
+using Demo.Source.Debug;
 using Demo.Source.Game;
-using Demo.Source.Game.Input;
-using Demo.Source.Game.Player;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Myra;
-using Myra.Graphics2D.UI;
+using TiledSharp;
 using ButtonState = Microsoft.Xna.Framework.Input.ButtonState;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
 
@@ -22,13 +21,17 @@ public class MAIN : Game
     private SpriteBatch _spriteBatch;
 
     private Player _player;
-    private PlayerInput _playerInput;
     private SmoothCamera _camera;
-    private Desktop _desktop;
-    private Slider _fpsSlider;
-    private float _lastFPSValue;
-    
-    
+    private DebugUIDrawer _debugUi;
+
+    private TmxMap _map;
+    private Texture2D _tileset;
+    private int _tileWidth;
+    private int _tileHeight;
+    private int _tilesetTilesWide;
+    private int _tilesetTilesHigh;
+    private List<Rectangle> _collisions = new();
+
     public float Delta { get; private set; }
 
     public MAIN()
@@ -47,46 +50,31 @@ public class MAIN : Game
     protected override void Initialize()
     {
         // TODO: Add your initialization logic here
+        _debugUi = new DebugUIDrawer(this);
+        
         _player = new Player(Vector2.One * 100);
-        _playerInput = new PlayerInput();
+
         _camera = new SmoothCamera(_graphics.GraphicsDevice, _player.T, 0.3f);
+        
         base.Initialize();
     }
-
-    private void UpdateTargetFramerate()
-    {
-        TargetElapsedTime = TimeSpan.FromSeconds(1d / (int)_fpsSlider.Value);
-        Console.WriteLine(_fpsSlider.Value.ToString());
-    }
-
+    
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
-        
-        MyraEnvironment.Game = this;
-        
-        var grid = new Grid(){RowSpacing = 8, ColumnSpacing = 8};
+        _map = new TmxMap("Content/demo_map.tmx");
+        _tileset = Content.Load<Texture2D>(_map.Tilesets[0].Name);
 
-        grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
-        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+        _tileWidth = _map.Tilesets[0].TileWidth;
+        _tileHeight = _map.Tilesets[0].TileHeight;
+
+        _tilesetTilesWide = _tileset.Width / _tileWidth;
+        _tilesetTilesHigh = _tileset.Height / _tileHeight;
         
-        _fpsSlider = new HorizontalSlider();
-        _fpsSlider.Maximum = 165;
-        _fpsSlider.Minimum = 15;
-        _fpsSlider.Value = 100;
-        _lastFPSValue = 100;
-        grid.Widgets.Add(_fpsSlider);
-
-        var button = new TextButton() {Text = "Update FrameRate"};
-        button.Click += (s, e) => UpdateTargetFramerate();
-
-        _desktop = new Desktop()
-        {
-            Root = grid
-        };
+        foreach(var o in _map.Layers["Obstacles"].Tiles)
+            Physics.AddObstacle(new Rectangle((int)(o.X * _tileWidth), (int)(o.Y * _tileHeight), (int)_tileWidth, (int)_tileHeight));
         
-        grid.Widgets.Add(button);
-
+        _debugUi.Initialize();
         // TODO: use this.Content to load your game content here
     }
 
@@ -97,10 +85,8 @@ public class MAIN : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
             Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
-        
-        _playerInput.Update();
-        _player.ProvideInput(_playerInput.RawInput);
-        _player.UpdatePosition(Delta);
+
+        _player.Update(Delta);
         _camera.UpdateSmoothedPosition(Delta);
         _camera.Update(gameTime);
 
@@ -120,8 +106,28 @@ public class MAIN : Game
         _spriteBatch.Draw(Content.Load<Texture2D>("square"), new Rectangle(248, 300, 56, 76), null, Color.Green);
         _spriteBatch.Draw(Content.Load<Texture2D>("square"), playerRect, null, new Color(0.1f, 024f, 0.5f, 0.7f));
 
+        for (var i = 0; i < _map.Layers[0].Tiles.Count; i++) 
+        {
+            int gid = _map.Layers[0].Tiles[i].Gid;
+            
+            if(gid != 0) 
+            {
+                int tileFrame = gid - 1;
+                int column = tileFrame % _tilesetTilesWide;
+                int row = (int)Math.Floor((double)tileFrame / (double)_tilesetTilesWide);
+
+                float x = (i % _map.Width) * _map.TileWidth;
+                float y = (float)Math.Floor(i / (double)_map.Width) * _map.TileHeight;
+
+                Rectangle tilesetRec = new Rectangle(_tileWidth * column, _tileHeight * row, _tileWidth, _tileHeight);
+
+                _spriteBatch.Draw(_tileset, new Rectangle((int)x, (int)y, _tileWidth, _tileHeight), tilesetRec, Color.White);
+            }
+        }
+        
         _spriteBatch.End();
-        _desktop.Render();
+        _debugUi.Draw();
+        
         base.Draw(gameTime);
     }
 }

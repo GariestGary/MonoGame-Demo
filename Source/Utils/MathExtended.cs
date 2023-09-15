@@ -1,7 +1,7 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿namespace Demo.Source.Utils;
 
-namespace Demo.Source.Utils;
+using Microsoft.Xna.Framework;
+using System;
 
 public static class MathExtended
 {

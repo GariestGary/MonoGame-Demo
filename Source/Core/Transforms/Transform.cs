@@ -1,23 +1,14 @@
-﻿using Microsoft.Xna.Framework;
+﻿namespace Demo.Source.Core;
 
-namespace Demo.Source.Core;
+using Microsoft.Xna.Framework;
 
 public class Transform
 {
-    private Vector2 _position;
-    private Vector2 _scale;
     private float _rotation;
     
-    public Vector2 Position
-    {
-        get => _position;
-        set => _position = value;
-    }
+    public Vector2 Position { get; set; }
 
-    public Vector2 Scale
-    {
-        get => _scale;
-        set => _scale = value;
-    }
+    public Vector2 Scale { get; set; }
+
     public float RotationAngle { get; set; }
 }

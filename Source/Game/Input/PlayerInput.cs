@@ -1,25 +1,47 @@
 ﻿using System;
+
+namespace Demo.Source.Game;
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-namespace Demo.Source.Game.Input;
-
-public class PlayerInput
+public class PlayerInput: CoreInput
 {
-    private Vector2 _rawInput = Vector2.Zero;
+    private bool _jumpPressed;
+
+    public event Action JumpInputDown;
+    public event Action JumpInputUp;
     
-    public Vector2 RawInput => _rawInput;
-
-    public void Update()
+    public override Vector2 GetInput()
     {
-        Vector2 input = Vector2.Zero;
+        var input = Vector2.Zero;
 
-        //Get input from "W", "A", "S" and "D" keys and write into _rawInput variable
-        input.Y += Keyboard.GetState().IsKeyDown(Keys.W) ? -1f : 0f;
-        input.Y += Keyboard.GetState().IsKeyDown(Keys.S) ? 1f : 0f;
-        input.X += Keyboard.GetState().IsKeyDown(Keys.A)? -1f : 0f;
-        input.X += Keyboard.GetState().IsKeyDown(Keys.D)? 1f : 0f;
+        var keyboard = Keyboard.GetState();
         
-        _rawInput = input;
+        //Get input from "W", "A", "S" and "D" keys and write into _rawInput variable
+        input.Y += keyboard.IsKeyDown(Keys.W) ? -1f : 0f;
+        input.Y += keyboard.IsKeyDown(Keys.S) ? 1f : 0f;
+        input.X += keyboard.IsKeyDown(Keys.A)? -1f : 0f;
+        input.X += keyboard.IsKeyDown(Keys.D)? 1f : 0f;
+
+        if (_jumpPressed)
+        {
+            if (keyboard.IsKeyUp(Keys.Space))
+            {
+                _jumpPressed = false;
+                JumpInputUp?.Invoke();
+            }
+        }
+        else
+        {
+            if (keyboard.IsKeyDown(Keys.Space))
+            {
+                _jumpPressed = true;
+                JumpInputDown?.Invoke();
+            }
+        }
+        
+        
+        return input;
     }
 }
